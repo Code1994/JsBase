@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>arc</title>
+</head>
+<body>
+  <button id="btn">创建圆</button>
+  <canvas id="canvas" width="800" height="800" style="border: 1px solid #ccc; display: block;"></canvas>
+</body>
+<script>
+  var canvas = document.querySelector('#canvas')
+  var ctx = canvas.getContext('2d')
+  // arc(圆心x, 圆心y, 半径 开始角度, 结束角度, 正向或反向) 默认为false 顺时针，设置为true 则为逆时针。 
+  ctx.arc(300, 300, 100, 0, Math.PI / 3,)
+  ctx.fill()
+  // 绘制一个圆 内部定制化更改部分颜色
+  function getRandomColor () {
+    var x = parseInt(Math.random() * 256)
+    var y = parseInt(Math.random() * 256)
+    var z = parseInt(Math.random() * 256)
+    return `rgb(${x}, ${y}, ${z})`
+  }
+  function drawArc() {
+    var num = 5
+    var canvas = document.querySelector('#canvas')
+    var ctx = canvas.getContext('2d')
+    var angle = Math.PI * 2 / num
+    console.log(angle)
+    setInterval(() => {
+      for (let i = 0; i < num; i++) {
+        ctx.beginPath()
+        ctx.fillStyle = getRandomColor()
+        // arc实际上画的是弧度 必须加上这个moveTo 才能连接到圆心
+        ctx.moveTo(500, 300)
+        ctx.arc(500, 300, 100, angle * i, angle * (i + 1))
+        // ctx.closePath()
+        ctx.fill()
+      }
+    }, 500)
+  }
+  // 这里传参的要使用类似这种方式 (e, num) => {drawArc()}
+  document.querySelector('#btn').addEventListener('click', drawArc)
+</script>
+</html>
