@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iframe</title>
+  <style>
+    html, body {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    .move {
+      position: absolute; 
+      left: calc(30% + 400px); 
+      top: 0;
+      width: 20px; 
+      height: 20px; 
+      background-color: red;
+    }
+    .iframe {
+      position: absolute;
+      top: 0;
+      left: 300px;
+      width: 30%;
+      height: 100%;
+      background-color: blue;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="handleIframe()()">click</button>
+  <div class="move"></div>
+  <!-- <div style="position:absolute; width: 100%; height: 100%;"></div> -->
+  <div class="iframe">
+    <iframe id="iframe" style="width: 100%; height: 100%;" src="https://www.bankdo.com/" frameborder="0"></iframe>
+  </div>
+</body>
+<script>
+  function handleIframe () {
+    var i = 100
+    return function () {
+      var iframe = document.querySelector('#iframe')
+      iframe.style.transform = `translateX(${i}px)`
+      i = i + 100
+    }
+  }
+  var iframe = document.querySelector('.iframe')
+  
+  var moveElem = document.querySelector('.move'); //待拖拽元素      
+  var value = parseInt(getComputedStyle(moveElem).left)
+  console.log({value})
+var dragging; //是否激活拖拽状态
+var tLeft, tTop; //鼠标按下时相对于选中元素的位移
+
+//监听鼠标按下事件
+document.addEventListener('mousedown', function(e) {
+    if (e.target == moveElem) {
+        
+        dragging = true; //激活拖拽状态
+       var moveElemRect = moveElem.getBoundingClientRect();
+        tLeft = e.clientX - moveElemRect.left; //鼠标按下时和选中元素的坐标偏移:x坐标
+        tTop = e.clientY - moveElemRect.top; //鼠标按下时和选中元素的坐标偏移:y坐标
+    }
+});
+
+//监听鼠标放开事件
+document.addEventListener('mouseup', function(e) {
+    dragging = false;
+});
+
+//监听鼠标移动事件
+document.addEventListener('mousemove', function(e) {
+    if (dragging) {
+        var moveX = e.clientX - tLeft, 
+              moveY = e.clientY - tTop;
+        moveElem.style.left = moveX + 'px';
+        moveElem.style.top = moveY + 'px';
+        
+        iframe.style.transform = `translate(${moveX - value}px, ${moveY}px)`
+    }
+});
+</script>
+</html>
