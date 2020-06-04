@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>line</title>
+</head>
+<body>
+  <canvas id="canvas" width="800" height="800" style="border: 1px solid #ccc;"></canvas>
+</body>
+<script>
+  var canvas = document.querySelector('#canvas')
+  var ctx = canvas.getContext('2d')
+  // 利用beginPath来区分两次的线段 否则线段之间会互相影响。closePath会将最近一次的moveTo与最后一次的lineTo坐标链接起来 然后调用stroke方法
+  ctx.beginPath()
+  ctx.lineWidth = '3'
+  ctx.moveTo(100, 100.5)
+  ctx.lineTo(300, 100.5)
+  ctx.strokeStyle = 'red'
+  ctx.stroke()
+
+  // ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  ctx.moveTo(100, 200.5)
+  ctx.lineTo(300, 200.5)
+  ctx.lineTo(300, 300.5)
+  
+  ctx.strokeStyle = 'blue'
+  ctx.closePath()
+  ctx.stroke()
+  // 把ctx想象成画笔 绘制线条时的额外属性
+  /*
+    线条宽度 ctx.lineWidth = '2'
+    线条断点样式 ctx.lineCap    'butt'(断头台，默认)  'round'(圆弧)  'square'(方块 该方块宽度与线条一致 长度是宽度的一半)
+    线条连接样式或线条转角样式 ctx.lineJoin    'miter'(尖头)  'round'(圆头)  'bevel'(平头)
+
+    设置样式需要在stroke或者fill方法调用之前
+  */ 
+
+  ctx.beginPath()
+  ctx.lineWidth = '4'
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  ctx.moveTo(100, 500)
+  ctx.lineTo(400, 500)
+  // ctx.moveTo(400, 500) 修改这里会导致图形完全不同
+  ctx.lineTo(200, 600)
+  ctx.lineTo(200, 300)
+  ctx.closePath()
+  ctx.strokeStyle = 'red'
+  ctx.stroke()
+  ctx.fill()
+</script>
+</html>
