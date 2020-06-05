@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iframe</title>
+  <style>
+    html, body {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    .close {
+      position: absolute; 
+      left: 260px; 
+      top: 0;
+      width: 40px; 
+      height: 40px; 
+      background-color: green;
+    }
+    .move {
+      position: absolute; 
+      left: calc(30% + 300px); 
+      top: 0;
+      width: 40px; 
+      height: 40px; 
+      cursor: move;
+      background-color: red;
+    }
+    .iframe {
+      position: absolute;
+      top: 0;
+      left: 300px;
+      width: 30%;
+      height: 100%;
+      background-color: blue;
+    }
+  </style>
+</head>
+<body>
+  <div class="close"></div>
+  <!-- <div style="position:absolute; width: 100%; height: 100%;"></div> -->
+  <div class="iframe">
+    <iframe id="iframe" style="width: 100%; height: 100%;" src="https://www.bankdo.com/" frameborder="0"></iframe>
+  </div>
+  <div class="move"></div>
+</body>
+<script>
+  var iframe = document.querySelector('.iframe')
+  
+  var moveElem = document.querySelector('.move'); //待拖拽元素      
+  var moveLeft = parseInt(getComputedStyle(moveElem).left)
+  // 关闭元素
+  var closeElem = document.querySelector('.close')
+  var closeLeft = parseInt(getComputedStyle(closeElem).left)
+
+  moveElem.onmousedown = function(event) {
+
+    let shiftX = event.clientX - moveElem.getBoundingClientRect().left;
+    let shiftY = event.clientY - moveElem.getBoundingClientRect().top;
+
+    moveElem.style.position = 'absolute';
+    moveElem.style.zIndex = 1000;
+    document.body.append(moveElem);
+
+    moveAt(event.pageX, event.pageY);
+
+    // 移动现在位于坐标 (pageX, pageY) 上的球
+    // 将初始的偏移考虑在内
+    function moveAt(pageX, pageY) {
+      var moveX = pageX - shiftX, moveY = pageY - shiftY;
+      moveElem.style.left = moveX + 'px';
+      moveElem.style.top = moveY + 'px';
+      // moveElem.style.left = pageX - shiftX + 'px';
+      // moveElem.style.top = pageY - shiftY + 'px';
+      iframe.style.transform = `translate(${moveX - moveLeft}px, ${moveY}px)`
+      closeElem.style.transform = `translate(${moveX - moveLeft}px, ${moveY}px)`
+    }
+
+    function onMouseMove(event) {
+      moveAt(event.pageX, event.pageY);
+    }
+
+    // 在 mousemove 事件上移动球
+    document.addEventListener('mousemove', onMouseMove);
+
+    // 放下球，并移除不需要的处理程序
+    moveElem.onmouseup = function() {
+      document.removeEventListener('mousemove', onMouseMove);
+      moveElem.onmouseup = null;
+    }
+
+  }
+
+  moveElem.ondragstart = function() {
+  return false;
+  };
+
+
+</script>
+</html>

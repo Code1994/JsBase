@@ -10,12 +10,21 @@
       width: 100%;
       height: 100%;
     }
+    .close {
+      position: absolute; 
+      left: 260px; 
+      top: 0;
+      width: 40px; 
+      height: 40px; 
+      background-color: green;
+    }
     .move {
       position: absolute; 
-      left: calc(30% + 400px); 
+      left: calc(30% + 300px); 
       top: 0;
-      width: 20px; 
-      height: 20px; 
+      width: 50px; 
+      height: 50px; 
+      cursor: move;
       background-color: red;
     }
     .iframe {
@@ -29,27 +38,32 @@
   </style>
 </head>
 <body>
-  <button onclick="handleIframe()()">click</button>
-  <div class="move"></div>
+  <button onclick="fn()">click</button>
+  <div class="close"></div>
   <!-- <div style="position:absolute; width: 100%; height: 100%;"></div> -->
   <div class="iframe">
     <iframe id="iframe" style="width: 100%; height: 100%;" src="https://www.bankdo.com/" frameborder="0"></iframe>
   </div>
+  <div class="move"></div>
 </body>
 <script>
-  function handleIframe () {
+  var fn = function handleIframe () {
     var i = 100
     return function () {
       var iframe = document.querySelector('#iframe')
       iframe.style.transform = `translateX(${i}px)`
       i = i + 100
     }
-  }
+  }()
+
   var iframe = document.querySelector('.iframe')
-  
-  var moveElem = document.querySelector('.move'); //待拖拽元素      
-  var value = parseInt(getComputedStyle(moveElem).left)
-  console.log({value})
+  // 关闭元素
+  var closeElem = document.querySelector('.close')
+  var closeLeft = parseInt(getComputedStyle(closeElem).left)
+  //待拖拽元素 
+  var moveElem = document.querySelector('.move');      
+  var moveLeft = parseInt(getComputedStyle(moveElem).left)
+
 var dragging; //是否激活拖拽状态
 var tLeft, tTop; //鼠标按下时相对于选中元素的位移
 
@@ -62,22 +76,22 @@ document.addEventListener('mousedown', function(e) {
         tLeft = e.clientX - moveElemRect.left; //鼠标按下时和选中元素的坐标偏移:x坐标
         tTop = e.clientY - moveElemRect.top; //鼠标按下时和选中元素的坐标偏移:y坐标
     }
-});
+})
 
 //监听鼠标放开事件
 document.addEventListener('mouseup', function(e) {
     dragging = false;
-});
+})
 
 //监听鼠标移动事件
 document.addEventListener('mousemove', function(e) {
     if (dragging) {
-        var moveX = e.clientX - tLeft, 
-              moveY = e.clientY - tTop;
+        var moveX = e.clientX - tLeft, moveY = e.clientY - tTop;
         moveElem.style.left = moveX + 'px';
         moveElem.style.top = moveY + 'px';
         
-        iframe.style.transform = `translate(${moveX - value}px, ${moveY}px)`
+        iframe.style.transform = `translate(${moveX - moveLeft}px, ${moveY}px)`
+        closeElem.style.transform = `translate(${moveX - moveLeft}px, ${moveY}px)`
     }
 });
 </script>
