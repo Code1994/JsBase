@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>text</title>
+</head>
+<body>
+  <canvas id="canvas" width="800" height="800" style="border: 1px solid #ccc;"></canvas>
+</body>
+<script>
+  const canvas = document.querySelector('#canvas')
+  const ctx = canvas.getContext('2d')
+  // stokeText(text, x, y) filltext(text, x, y)
+  ctx.beginPath()
+  ctx.moveTo(100, 100)
+  ctx.lineTo(500, 100)
+  ctx.moveTo(300, 0)
+  ctx.lineTo(300, 500)
+  ctx.stroke()
+  // 居中点 300 100
+  const text = 'hello world'
+  // font-weight font-size font-family
+  ctx.font = 'bold 50px SimSun, Songti SC'
+  // 左右 textAlign start end (start与end 文字排列方向相关) left right center
+  ctx.textAlign = 'left'
+  // 上下 textBaseline top middle alphabetic(默认值) ideographic bottom
+  ctx.textBaseline = 'bottom'
+  ctx.fillStyle = 'red'
+  ctx.fillText(text, 300, 100)
+  ctx.textBaseline = 'top'
+  ctx.strokeText(text, 300, 100)
+</script>
+</html>
