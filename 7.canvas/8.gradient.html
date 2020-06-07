@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gradient</title>
+</head>
+<body>
+  <canvas id="canvas" width="800" height="800" style="border: 1px solid #ccc;"></canvas>
+</body>
+<script>
+  const canvas = document.querySelector('#canvas')
+  const ctx = canvas.getContext('2d')
+  // 一、创建线性渐变
+  const linearGradient = ctx.createLinearGradient(100, 100, 400, 200)
+  // 添加颜色
+  linearGradient.addColorStop(0, 'red')
+  linearGradient.addColorStop(1, 'blue')
+  // 设置填充颜色
+  ctx.fillStyle = linearGradient
+  // 绘制矩形 (渐变区域是由定义渐变的区域决定的，而不是矩形区域)
+  ctx.fillRect(100, 100, 200, 100)
+  ctx.fillRect(300, 200, 200, 100)
+  // 二、创建径向渐变 (x0， y0, r0, x1, y1, r1)
+  const radialGradient = ctx.createRadialGradient(600, 600, 0, 600, 600, 200)
+  // 添加颜色
+  radialGradient.addColorStop(0, 'red')
+  radialGradient.addColorStop(0.2, 'red')
+  radialGradient.addColorStop(0.2, 'blue')
+  radialGradient.addColorStop(0.4, 'blue')
+  radialGradient.addColorStop(0.4, 'pink')
+  radialGradient.addColorStop(0.6, 'pink')
+  radialGradient.addColorStop(0.6, 'orange')
+  radialGradient.addColorStop(0.6, 'orange')
+  radialGradient.addColorStop(0.8, 'green')
+  radialGradient.addColorStop(0.8, 'green')
+  radialGradient.addColorStop(1, 'yellow')
+  radialGradient.addColorStop(1, 'transparent')
+  // 矩形
+  ctx.fillStyle = radialGradient
+  ctx.fillRect(400, 400, 400, 400)
+</script>
+</html>
