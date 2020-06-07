@@ -24,10 +24,18 @@
   ctx.font = 'bold 50px SimSun, Songti SC'
   // 左右 textAlign start end (start与end 文字排列方向相关) left right center
   ctx.textAlign = 'left'
+  ctx.save()
   // 上下 textBaseline top middle alphabetic(默认值) ideographic bottom
   ctx.textBaseline = 'bottom'
   ctx.fillStyle = 'red'
+  // 阴影
+  ctx.shadowColor = 'skyblue'
+  // ctx.shadowBlur = 10
+  ctx.shadowOffsetX = -3
+  ctx.shadowOffsetY = -3
   ctx.fillText(text, 300, 100)
+
+  ctx.restore()
   ctx.textBaseline = 'top'
   ctx.strokeText(text, 300, 100)
 </script>
