@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>move</title>
+  <style>
+    #target {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200px;
+      height: 200px;
+      background-color: skyblue;
+    }
+    .area {
+      width: 100px;
+      height: 100px;
+      background-color: pink;
+    }
+  </style>
+</head>
+<body>
+  <div id="target">
+    <div class="area"></div>
+  </div>
+</body>
+<script>
+  function move (ele) {
+    const target = document.querySelector(ele)
+    // 初始坐标
+    let x, y
+    // 初始left top偏移
+    let initLeft, initTop
+    // 偏移距离
+    let offsetX, offsetY
+    // 鼠标是否按下
+    let flag = false
+    // 鼠标按下
+    document.addEventListener('mousedown', function (e) {
+      // 如果触发事件的元素是target
+      if (e.target === target) {
+        x = e.pageX
+        y = e.pageY
+        flag = true
+        // 获取目标元素现在的left 和 initTop
+        initLeft = parseFloat(getComputedStyle(target).left) // init 0px
+        initTop = parseFloat(getComputedStyle(target).top) // init 0px
+      }
+    })
+    // 鼠标移动
+    document.addEventListener('mousemove', function (e) {
+      if (e.target !== target || flag === false) {
+        return
+      }
+      offsetX = e.pageX - x
+      offsetY = e.pageY - y
+      // 设置目标元素的位置
+      target.style.left = offsetX + initLeft + 'px'
+      target.style.top = offsetY + initTop + 'px'
+    })
+    // 鼠标抬起
+    document.addEventListener('mouseup', function () {
+      flag = false
+    })
+  }
+  move('#target')
+</script>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iframe</title>
+  <style>
+    html, body {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    .close {
+      position: absolute; 
+      left: 260px; 
+      top: 0;
+      width: 40px; 
+      height: 40px; 
+      background-color: green;
+    }
+    .move {
+      position: absolute; 
+      left: calc(30% + 300px); 
+      top: 0;
+      width: 50px; 
+      height: 50px; 
+      cursor: move;
+      background-color: red;
+    }
+    .iframe {
+      position: absolute;
+      top: 0;
+      left: 300px;
+      width: 30%;
+      height: 100%;
+      background-color: blue;
+    }
+  </style>
+</head>
+<body>
+  <div class="close"></div>
+  <!-- <div style="position:absolute; width: 100%; height: 100%;"></div> -->
+  <div class="iframe">
+    <iframe id="iframe" style="width: 100%; height: 100%;" src="https://www.bankdo.com/" frameborder="0"></iframe>
+  </div>
+  <div class="move"></div>
+</body>
+<script>
+
+  var iframe = document.querySelector('.iframe')
+  // 关闭元素
+  var closeElem = document.querySelector('.close')
+  var closeLeft = parseFloat(getComputedStyle(closeElem).left)
+  //待拖拽元素 
+  var moveElem = document.querySelector('.move');      
+  var moveLeft = parseFloat(getComputedStyle(moveElem).left)
+
+  function move (ele) {
+    // 关闭元素
+    var closeElem = document.querySelector('.close')
+    var closeLeft = parseFloat(getComputedStyle(closeElem).left)
+    //待拖拽元素 
+    var moveElem = document.querySelector('.move');      
+    var moveLeft = parseFloat(getComputedStyle(moveElem).left)
+
+    const target = document.querySelector(ele)
+    // 初始坐标
+    let x, y
+    // 初始left top偏移
+    let initLeft, initTop
+    // 偏移距离
+    let offsetX, offsetY
+    // 鼠标是否按下
+    let flag = false
+    // 鼠标按下
+    document.addEventListener('mousedown', function (e) {
+      // 如果触发事件的元素是target
+      if (e.target === target) {
+        x = e.pageX
+        y = e.pageY
+        flag = true
+        // 获取目标元素现在的left 和 initTop
+        initLeft = parseFloat(getComputedStyle(target).left) // init 0px
+        initTop = parseFloat(getComputedStyle(target).top) // init 0px
+      }
+    })
+    // 鼠标移动
+    document.addEventListener('mousemove', function (e) {
+      if (!flag) {
+        return
+      }
+      if (e.target !== target) {
+        // 2.看下面造成mouseup失灵的原因
+        flag = false
+        return
+      }
+      offsetX = e.pageX - x
+      offsetY = e.pageY - y
+      // 设置目标元素的位置
+      target.style.left = offsetX + initLeft + 'px'
+      target.style.top = offsetY + initTop + 'px'
+      // 
+      iframe.style.transform = `translate(${offsetX + initLeft - moveLeft}px, ${offsetY + initTop}px)`
+      closeElem.style.transform = `translate(${offsetX + initLeft - moveLeft}px, ${offsetY + initTop}px)`
+      pauseEvent(e)
+    })
+    // 鼠标抬起
+    document.addEventListener('mouseup', function () {
+      flag = false
+      console.log(flag)
+    })
+    // !!! 实际上在mousemove的过程中很有可能造成mouseup事件失灵。这样就导致页面明明已经mouseup，但是还是可以拖动。一般造成这种情况的原因有两种 1.mousemove触发了页面的drag事件，从而导致mouseup失灵，解决办法是下面的阻止页面默认事件及冒泡 2.mousemove超出了页面的监听范围，导致失灵。解决办法是可以利用mouseleave监听，或者是上面我那样在mousemove过程中判断，如果已经不在范围内，则将标识置为false.
+    function pauseEvent(e){
+      if(e.stopPropagation) e.stopPropagation()
+      if(e.preventDefault) e.preventDefault()
+      e.cancelBubble = true
+      e.returnValue = false
+      return false;
+    }
+    // 测试下drag事件是否会被触发
+    document.addEventListener('drag', function () {
+      console.log('drag')
+    })
+  }
+  move('.move')
+</script>
+</html>
