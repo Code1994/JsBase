@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>lazyLoad</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    .wrapper {
+      width: 100vw;
+      /* height: 400vh; */
+      background-color: skyblue;
+      /* 添加上这句 不会触发window的scroll事件 而会触发wrapper的事件 */
+      /* overflow: scroll; */
+    }
+    .placeholder {
+      background-color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <!-- <img src="../../static/image/V6TWE6h8gyg.jpg" alt=""> -->
+  </div>
+</body>
+<script>
+  for (let i = 0; i < 100; i++) {
+    let img = document.createElement('img')
+    // img.src = '../../static/image/V6TWE6h8gyg.jpg'
+    img.style.width = '100vw'
+    img.style.height = '100vh'
+    img.style.verticalAlign = 'bottom'
+    // let div = document.createElement('img')
+    // div.style.width = '100vw'
+    // div.style.height = '100vh'
+    // div.className = 'placeholder'
+    // img.innerText = i
+    document.querySelector('.wrapper').appendChild(img)
+  }
+  // 页面滚动
+  let n = 0
+  window.onscroll = function (e) {
+    let imgs = document.querySelectorAll('img')
+    for (let i = n; i < imgs.length; i++) {
+      // 判断图片
+      let top = imgs[i].getBoundingClientRect().top
+      console.log(top, screen.height)
+      if (top < screen.height) {
+        console.log(i)
+        if (i === 0) {
+          imgs[i].src = `../../static/image/V6TWE6h8gyg.jpg`
+          continue
+        } else if (i === 1) {
+          imgs[i].src = `../../static/image/白老师.jpeg`
+          continue
+        } else if (i === 2) {
+          console.log(imgs[i])
+          imgs[i].src = `../../static/image/V6TWE6h8gyg.jpg`
+          continue
+        }
+        imgs[i].src = `../../static/image/V6TWE6h8gyg.jpg${i}`
+        n++
+      } else {
+        break
+      }
+    }
+  }
+  // document.querySelector('.wrapper').addEventListener('scroll', function () {console.log(1)})
+  // document.addEventListener('scroll', function () {console.log(2)})
+</script>
+</html>
