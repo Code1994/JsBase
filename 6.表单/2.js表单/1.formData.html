@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>formData</title>
+</head>
+<body>
+  
+</body>
+<script>
+  // 表单对象
+  // FormData 的设计 增加了ajax对二进制文件的控制 也就是说能够使ajax直接上传二进制数据 而不仅仅通过file表单
+  // 而且 请求头中的content-type 会自动设置成 multipart/form-data
+  const formData = new FormData()
+  formData.append('name', 'yxp')
+  const xhr = new XMLHttpRequest()
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      console.log(xhr.responseText)
+    }
+  }
+  // formData 只有使用post方式 才会将content-type 设置成multipart/form-data
+  xhr.open('get', 'http://127.0.0.1:8080/?formData=' + formData)
+  xhr.send(null)
+</script>
+</html>

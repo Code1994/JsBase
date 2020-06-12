@@ -2,9 +2,9 @@
 
 #### js表单相关
 
+- `Formdata`
 - `File`
 - `Blob`
-- `Formdata`
 - `FileReader`
 - `Uint8Array`
 - `ArrayBuffer`
