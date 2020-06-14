@@ -22,6 +22,7 @@
   }
   // formData 只有使用post方式 才会将content-type 设置成multipart/form-data
   xhr.open('get', 'http://127.0.0.1:8080/?formData=' + formData)
+  xhr.responseType = 'json'
   xhr.send(null)
 </script>
 </html>
