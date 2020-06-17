@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iframe</title>
+  <style>
+    html,
+    body {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    #close {
+      position: absolute;
+      left: 260px;
+      top: 0;
+      width: 40px;
+      height: 40px;
+      background-color: green;
+    }
+
+    #move {
+      position: absolute;
+      left: calc(30% + 300px);
+      top: 0;
+      width: 50px;
+      height: 50px;
+      cursor: move;
+      background-color: red;
+    }
+
+    #iframe {
+      position: absolute;
+      top: 0;
+      left: 300px;
+      width: 30%;
+      height: 100%;
+      background-color: blue;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="status"></div>
+  <div id="close"></div>
+  <!-- <div style="position:absolute; width: 100%; height: 100%;"></div> -->
+  <div id="iframe" class="draggable">
+    <iframe style="width: 100%; height: 100%;" src="https://www.bankdo.com/" frameborder="0"></iframe>
+  </div>
+  <div id="move" class="draggable"></div>
+</body>
+<script type="text/javascript" src="EventUtil.js"></script>
+<script type="text/javascript" src="EventTarget.js"></script>
+<script>
+  var iframe = document.querySelector('#iframe'), left, top, tarX, tarY
+  var DragDrop = function () {
+
+    var dragging = null,
+      diffX = 0,
+      diffY = 0;
+
+    function handleEvent(event) {
+
+      //get event and target
+      event = EventUtil.getEvent(event);
+      var target = EventUtil.getTarget(event);
+
+      //determine the type of event
+      switch (event.type) {
+        case "mousedown":
+          if (target.className.indexOf("draggable") > -1) {
+            dragging = target;
+            diffX = event.clientX - target.offsetLeft;
+            diffY = event.clientY - target.offsetTop;
+
+            tarX = event.clientX - iframe.offsetLeft
+            tarY = event.clientY - target.offsetTop
+          }
+          break;
+
+        case "mousemove":
+          if (dragging !== null) {
+
+            //assign location
+            dragging.style.left = (event.clientX - diffX) + "px";
+            dragging.style.top = (event.clientY - diffY) + "px";
+
+            // target
+            iframe.style.left = (event.clientX - tarX) + 'px'
+            iframe.style.top = (event.clientY - tarY) + "px"
+
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          break;
+
+        case "mouseup":
+          dragging = null;
+          break;
+      }
+    };
+
+    //public interface
+    return {
+      enable: function () {
+        EventUtil.addHandler(document, "mousedown", handleEvent);
+        EventUtil.addHandler(document, "mousemove", handleEvent);
+        EventUtil.addHandler(document, "mouseup", handleEvent);
+      },
+
+      disable: function () {
+        EventUtil.removeHandler(document, "mousedown", handleEvent);
+        EventUtil.removeHandler(document, "mousemove", handleEvent);
+        EventUtil.removeHandler(document, "mouseup", handleEvent);
+      }
+    }
+  }();
+
+  DragDrop.enable();
+</script>
+
+</html>

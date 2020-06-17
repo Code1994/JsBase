@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>geolocaltion</title>
+</head>
+<body>
+  <script>
+    const geolocation = navigator.geolocation
+    geolocation.getCurrentPosition(function (obj) {
+      // 用户允许打印之后 控制台竟然不打印
+      console.log(obj)
+    }, function (err) {
+      console.log(err)
+    }, {
+      // 是否高精度 高精度的话比较耗电
+      enableHighAccuracy: false,
+      // 以毫秒数表示的等待位置信息的最长时间
+      timeout: 2000,
+      // 多少秒之后刷新位置
+      maximumAge: 2000
+    })
+  </script>
+</body>
+</html>
