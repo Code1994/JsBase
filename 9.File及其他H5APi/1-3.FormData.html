@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FormData</title>
+</head>
+<body>
+  <input id="file" type="file">
+</body>
+<script>
+  // 通过FileReader可以读取文件内容 但是在ajax的交互中 如果把文件内容传递给后端 后端还要创建文件再写入。所以在ajax的实际应用中 我们使用FormData来模拟表单的上传
+  // 另外，值得一说的是，浏览器在检测到FormData时，会自动将请求头中的content-type设置为multipart/form-data
+  let fileForm = document.querySelector('#file')
+  fileForm.onchange = function (e) {
+    const file = e.target.files[0]
+    let xhr = new XMLHttpRequest()
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 3) {
+        if (xhr.status === 200 || xhr.status === 304) {
+          console.log(xhr.response)
+        }
+        else {
+          alert('error~')
+        }
+      }
+    }
+    xhr.open('post', 'http://127.0.0.1:8081')
+    let formData = new FormData()
+    formData.append('file', file)
+    xhr.send(formData)  
+  }
+</script>
+</html>
