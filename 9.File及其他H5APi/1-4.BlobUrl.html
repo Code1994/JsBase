@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlobUrl</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+    body {
+      display: flex;
+    }
+    #box {
+      width: 50%;
+      height: 100%;
+    }
+    #iframe {
+      width: 50%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="box">
+    <input id="file" type="file">
+  </div>
+  <iframe id="iframe" frameborder="0"></iframe>
+</body>
+<script>
+  const fileForm = document.querySelector('#file')
+  fileForm.onchange = function (e) {
+    const file = e.target.files[0]
+    // createObjectUrl的参数是File对象  而new Blob()的参数是数组和 对象(MIME)
+    const url = URL.createObjectURL(file)
+
+    document.querySelector('#iframe').src = url
+  }
+  // BlobUrl较之DataUrl的优点在于 文件体积不会被无缘无故增大，文件打开速度很快
+</script>
+</html>
