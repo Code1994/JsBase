@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FileReader</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+    body {
+      display: flex;
+    }
+    .box {
+      width: 50%;
+      height: 100%;
+    }
+    #iframe {
+      width: 50%;
+      height: 100%;
+    }
+    #image-box img {
+      width: 100px;
+      height: 100px;
+    }
+    .ellipse {
+      overflow : hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <!-- 设置multiple属性 可多文件上传 -->
+    <input id="file" type="file">
+    <div id="area"></div>
+    <div id="image-box"></div>
+    <!-- 1.DataUrl base64 -->
+    <div id="data-url">
+      <div style="color: skyblue;">该文件的DataUrl为：</div>
+    </div>
+    <!-- 2.Binary string -->
+    <div id="binary-string">
+      <div style="color: orange;">该文件的Binary string为：</div>
+    </div>
+    <!-- 3. Text-->
+    <div id="text">
+      <div style="color: pink;">该文件的Text为：</div>
+    </div>
+    <!-- 4.ArrayBuffer -->
+    <div id="array-buffer">
+      <div style="color: greenyellow;">该文件的ArrayBuffer为：</div>
+    </div>
+  </div>
+  <!-- 承载pdf 图片 -->
+  <iframe id="iframe" frameborder="0"></iframe>
+</body>
+<script>
+  window.onload = function () {
+    const file = document.querySelector('#file')
+    const area = document.querySelector('#area')
+    // 不要单独只创建一个FileReader实例 不够用 Failed to execute 'readAsDataURL' on 'FileReader': The object is already busy reading Blobs.
+    // const reader = new FileReader()
+    file.onchange = function (e) {
+      const fileList = e.target.files
+      // not also there
+      // const reader = new FileReader()
+      for (let i = fileList.length - 1; i >= 0; i--) {
+        const item = fileList[i]
+        const div = document.createElement('div')
+        div.innerHTML = `name:${item.name}<br>type:${item.type}<br>size:${item.size}`
+        area.appendChild(div)
+        // img
+        if (item.type === 'image/jpeg' || item.type === 'image/jpg') {
+          const reader = new FileReader()
+          // readAsDataUrl等类似方法只接收Blob对象或File对象
+          reader.readAsDataURL(item)
+          reader.onload = function (e) {
+            // 结果不会存在下面这个ProcessEvent对象中
+            console.log(e)
+            // 而是在实例的result属性中
+            const image = document.createElement('img')
+            image.src = reader.result
+            const imageBox = document.querySelector('#image-box')
+            imageBox.appendChild(image)
+          }
+        } else {
+          // DataUrl base64编码内容  使用DataUrl的缺点是 文件体积会增加1/3 另外文本文件可能乱码。所以一般小体积图片可以考虑使用DataUrl 而文件则使用BlobUrl
+          reader('data-url', item)
+          // Binary string二进制字符串
+          reader('binary-string', item)
+          // Text 文本
+          reader('text', item)
+          // ArrayBuffer 数组缓冲区
+          reader('array-buffer', item)
+        }
+      }
+    }
+
+    function reader (type, file) {
+      const reader = new FileReader()
+      const list = {
+        'data-url': 'readAsDataURL',
+        'binary-string': 'readAsBinaryString',
+        'text': 'readAsText',
+        'array-buffer': 'readAsArrayBuffer'
+      }
+      const action = list[type]
+      reader[action](file)
+      // reader[action].call(reader, file)
+      reader.onload = function () {
+        const div = document.createElement('div')
+        const result = reader.result
+        div.innerText = result
+        div.className = 'ellipse'
+        const target = document.querySelector(`#${type}`)
+        target.appendChild(div)
+
+        if (type === 'data-url') {
+          // 显示pdf  发现dataUrl也能展示pdf
+          const iframe = document.querySelector('#iframe')
+          iframe.src = result
+        }
+      }
+    }
+  }
+</script>
+</html>

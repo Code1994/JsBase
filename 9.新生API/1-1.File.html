@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>file</title>
+</head>
+<body>
+  <!-- 设置multiple属性 可多文件上传 -->
+  <input id="file" type="file" multiple>
+  <div id="area"></div>
+</body>
+<script>
+  window.onload = function () {
+    const file = document.querySelector('#file')
+    const area = document.querySelector('#area')
+    file.onchange = function (e) {
+      console.log(e)
+      // 该数组中会保存File对象   fileList不是数组 是一个对象
+      const fileList = e.target.files
+      // 不能使用forEach
+      // fileList.forEach(item => {
+      //   const div = document.createElement('div')
+      //   div.innerText = `name:${item.name}--type:${item.type}--size:${item.size}`
+      //   area.appendChild(div)
+      // })
+      for (let i = fileList.length - 1; i >= 0; i--) {
+        const item = fileList[i]
+        const div = document.createElement('div')
+        div.innerText = `name:${item.name}--type:${item.type}--size:${item.size}`
+        area.appendChild(div)
+      }
+    }
+  }
+</script>
+</html>
