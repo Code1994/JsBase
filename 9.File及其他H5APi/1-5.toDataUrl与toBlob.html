@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>toDataUrl与toBlob</title>
+</head>
+<body>
+  <canvas id="canvas" width="800" height="800" style="border: 1px solid #ccc;"></canvas>
+  <img id="dataUrl-img" style="width: 400px; height: 400px;">
+  <img id="blob-img" style="width: 400px; height: 400px;">
+</body>
+<script>
+  // toDataURL 与 toBlob是HtmlCanvasElement的方法 在此测试一下
+  let canvas = document.querySelector('#canvas')
+  let ctx = canvas.getContext('2d')
+  let image = new Image()
+  image.src = '../static/image/白老师.jpeg'
+  image.onload = function () {
+    ctx.drawImage(image, 0, 0, 800, 800)
+
+    let dataURL = canvas.toDataURL()
+    let dataURLImg = document.querySelector('#dataUrl-img')
+    dataURLImg.src = dataURL
+
+    canvas.toBlob(function (blob) {
+      console.log({blob})
+      let blobImg = document.querySelector('#blob-img')
+      let blobURL = URL.createObjectURL(blob)
+      blobImg.src = blobURL
+    })
+  }
+</script>
+</html>
