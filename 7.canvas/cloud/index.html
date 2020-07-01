@@ -1,0 +1,242 @@
+<html lang="en">
+  <head>
+    <title>JsGoShu</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css"/>
+    <link href="./css/index.css" rel="stylesheet"></link>
+    <!-- <script type="text/javascript" async="" src="https://ssl.google-analytics.com/ga.js"></script></head> -->
+  <body>
+    <!-- <script src="/js/ga.js"></script> -->
+    <script type="text/javascript" src="js/three.min.js"></script>
+    <script type="text/javascript" src="js/Detector.js"></script>
+
+    <script id="vs" type="x-shader/x-vertex">
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+      }
+    </script>
+
+    <script id="fs" type="x-shader/x-fragment">
+
+      uniform sampler2D map;
+
+      uniform vec3 fogColor;
+      uniform float fogNear;
+      uniform float fogFar;
+
+      varying vec2 vUv;
+
+      void main() {
+
+        float depth = gl_FragCoord.z / gl_FragCoord.w;
+        float fogFactor = smoothstep( fogNear, fogFar, depth );
+
+        gl_FragColor = texture2D( map, vUv );
+        gl_FragColor.w *= pow( gl_FragCoord.z, 20.0 );
+        gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
+      }
+
+    </script>
+
+    <script type="text/javascript">
+
+      if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+      var container;
+      var camera, scene, renderer;
+      var mesh, geometry, material;
+
+      var mouseX = 0, mouseY = 0;
+      var start_time = Date.now();
+
+      var windowHalfX = window.innerWidth / 2;
+      var windowHalfY = window.innerHeight / 2;
+
+      init();
+
+      function init() {
+
+        container = document.createElement( 'div' );
+        document.body.appendChild( container );
+
+        // Bg gradient
+
+        var canvas = document.createElement( 'canvas' );
+        canvas.width = 32;
+        canvas.height = window.innerHeight;
+
+        var context = canvas.getContext( '2d' );
+
+        var gradient = context.createLinearGradient( 0, 0, 0, canvas.height );
+        gradient.addColorStop(0, "#1e4877");
+        gradient.addColorStop(0.5, "#4584b4");
+
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        container.style.background = 'url(' + canvas.toDataURL('image/png') + ')';
+        container.style.backgroundSize = '32px 100%';
+
+        camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 3000 );
+        camera.position.z = 6000;
+
+        scene = new THREE.Scene();
+
+        geometry = new THREE.Geometry();
+
+        var texture = THREE.ImageUtils.loadTexture( 'image/png/cloud10.png', null, animate );
+        texture.magFilter = THREE.LinearMipMapLinearFilter;
+        texture.minFilter = THREE.LinearMipMapLinearFilter;
+
+        var fog = new THREE.Fog( 0x4584b4, - 100, 3000 );
+
+        material = new THREE.ShaderMaterial( {
+
+          uniforms: {
+
+            "map": { type: "t", value: texture },
+            "fogColor" : { type: "c", value: fog.color },
+            "fogNear" : { type: "f", value: fog.near },
+            "fogFar" : { type: "f", value: fog.far },
+
+          },
+          vertexShader: document.getElementById( 'vs' ).textContent,
+          fragmentShader: document.getElementById( 'fs' ).textContent,
+          depthWrite: false,
+          depthTest: false,
+          transparent: true
+
+        } );
+
+        var plane = new THREE.Mesh( new THREE.PlaneGeometry( 64, 64 ) );
+
+        for ( var i = 0; i < 8000; i++ ) {
+
+          plane.position.x = Math.random() * 1000 - 500;
+          plane.position.y = - Math.random() * Math.random() * 200 - 15;
+          plane.position.z = i;
+          plane.rotation.z = Math.random() * Math.PI;
+          plane.scale.x = plane.scale.y = Math.random() * Math.random() * 1.5 + 0.5;
+
+          THREE.GeometryUtils.merge( geometry, plane );
+
+        }
+
+        mesh = new THREE.Mesh( geometry, material );
+        scene.add( mesh );
+
+        mesh = new THREE.Mesh( geometry, material );
+        mesh.position.z = - 8000;
+        scene.add( mesh );
+
+        renderer = new THREE.WebGLRenderer( { antialias: false } );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        container.appendChild( renderer.domElement );
+
+        document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+        window.addEventListener( 'resize', onWindowResize, false );
+
+      }
+
+      function onDocumentMouseMove( event ) {
+
+        mouseX = ( event.clientX - windowHalfX ) * 0.25;
+        mouseY = ( event.clientY - windowHalfY ) * 0.15;
+
+      }
+
+      function onWindowResize( event ) {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+      }
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+
+        position = ( ( Date.now() - start_time ) * 0.03 ) % 8000;
+
+        camera.position.x += ( mouseX - camera.position.x ) * 0.01;
+        camera.position.y += ( - mouseY - camera.position.y ) * 0.01;
+        camera.position.z = - position + 8000;
+
+        renderer.render( scene, camera );
+
+      }
+
+    </script>
+    <!-- canvas -->
+    <div style="background: url(&quot;data:image/png;base64,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&quot;) 0% 0% / 32px 100%;">
+      <canvas width="3360" height="458" style="width: 1680px; height: 229px;"></canvas>
+    </div>
+    <!-- content -->
+    <div class="content animate__animated animate__zoomInDown">
+      <div class="content-avatar animate__animated"></div>
+      <div class="content-name animate__animated">JsGoShu</div>
+      <div class="content-classify">
+        <div class="classify-item">
+          <span class="animate__animated" data-id="0">Blog</span>
+          <span class="hidden animate__animated">我的博客</span>
+        </div>
+        <div class="classify-item">
+          <span class="animate__animated" data-id="1">Project</span>
+          <span class="hidden animate__animated">我的项目</span>
+        </div>
+        <div class="classify-item">
+          <span class="animate__animated" data-id="2">Note</span>
+          <span class="hidden animate__animated">我的随笔</span>
+        </div>
+      </div>
+    </div>
+    <script>
+      // 头像
+      var avatar = document.querySelector('.content-avatar')
+      avatar.onmouseover = function () {
+        var classList = avatar.classList
+        classList.add('animate__jello')
+        setTimeout(() => {
+          classList.remove('animate__jello')
+        }, 1000)
+      }
+      // 姓名
+      var contentName = document.querySelector('.content-name')
+      var timer
+      contentName.onclick = function () {
+        console.log(123)
+        if (timer) {
+          return
+        }
+        contentName.classList.add('animate__hinge')
+        timer = setTimeout(() => {
+          contentName.classList.remove('animate__hinge')
+          timer = null
+        }, 1000)
+      }
+      // 分类
+      var classify = document.querySelector('.content-classify')
+      classify.onmouseover = function (e) {
+        var id = e.target.dataset.id
+        if (!id) {
+          return
+        }
+        var currencyItem = document.querySelectorAll('.classify-item')[Number(id)]
+        // var item1 = currencyItem.children[0]
+        var item2 = currencyItem.children[1]
+        // item1.classList.add('animate__fadeOutRight')
+        item2.classList.add('animate__fadeInLeft')
+        setTimeout(() => {
+          // item1.classList.remove('animate__fadeOutRight')
+          item2.classList.remove('animate__fadeInLeft')
+        }, 1000)
+      }
+    </script>
+  </body>
+</html>
