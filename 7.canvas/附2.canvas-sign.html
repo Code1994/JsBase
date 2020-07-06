@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas-sign</title>
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1925495_d7w9tysoi4q.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .tip {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translate(calc(50% - 15px), -50%) rotate(90deg);
+      z-index: 999;
+      width: 200px;
+      height: 30px;
+      background-color: #767676;
+      text-align: center;
+      line-height: 30px;
+      color: #fff;
+      border-radius: 4px;
+    }
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      background-color: transparent;
+    }
+    .icon {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      transform: rotate(90deg);
+      z-index: 999;
+      font-size: 24px;
+    }
+    .clear {
+      bottom: 150px;
+    }
+    .save {
+      bottom: 50px;
+    }
+    .img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      display: none;
+      width: 250px;
+      height: 500px;
+    }
+  </style>
+</head>
+<body>
+  <div class="tip">
+    <span>请在此签名</span>
+  </div>
+  <canvas id="canvas"></canvas>
+  <!-- 清除 -->
+  <i class="iconfont icon-icon icon clear"></i>
+  <!-- 保存 -->
+  <i class="iconfont icon-baocun icon save"></i>
+  <!--生成的图片 -->
+  <img class="img" alt="生成的图片">
+  <script>
+    window.onload = function () {
+      // 获取设置宽高 并设置给canvas
+      var width = document.body.offsetWidth
+      var height = document.body.offsetHeight
+      var canvas = document.querySelector('#canvas')
+      canvas.width = width
+      canvas.height = height
+
+      var ctx = canvas.getContext('2d')
+      // 起点 终点
+      var startX, startY, endX, endY, flag
+      // PC端 注意一点mousedown mousemove mouseup事件在mobile端并不会触发
+      canvas.onmousedown = function (e) {
+        flag = true
+        startX = e.offsetX
+        startY = e.offsetY
+        e.preventDefault()
+      }
+      canvas.onmousemove = function (e) {
+        if (!flag) {
+          return
+        }
+        endX = e.offsetX
+        endY = e.offsetY
+        draw(startX, startY, endX, endY)
+        startX = e.offsetX
+        startY = e.offsetY
+        e.preventDefault()
+      }
+      canvas.onmouseup = function (e) {
+        flag = false
+      }
+      // mobile端
+      canvas.ontouchstart = function (e) {
+        // 如果是多指的话 返回
+        if (e.touches.length > 1) {
+          console.log('暂不支持多指绘制')
+          return
+        }
+        flag = true
+        var target = e.touches[0]
+        startX = target.pageX
+        startY = target.pageY
+        e.preventDefault()
+      }
+      canvas.ontouchmove = function (e) {
+        if (!flag) {
+          return
+        }
+        var target = e.touches[0]
+        endX = target.pageX
+        endY = target.pageY
+        draw(startX, startY, endX, endY)
+        startX = target.pageX
+        startY = target.pageY
+        e.preventDefault()
+      }
+      canvas.ontouchend = function (e) {
+        flag = false
+      }
+      function draw (startX, startY, endX, endY) {
+        ctx.beginPath()
+        ctx.lineWidth = '4'
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        ctx.moveTo(startX, startY)
+        ctx.lineTo(endX, endY)
+        ctx.stroke()
+      }
+
+      // 清除
+      var clear = document.querySelector('.clear')
+      clear.onclick = function () {
+        ctx.clearRect(0, 0, width, height)
+      }
+      // 保存
+      var save = document.querySelector('.save')
+      save.onclick = function () {
+        var img = document.querySelector('.img')
+        // 生成dataURL
+        var dataURL = canvas.toDataURL()
+        img.src = dataURL
+        img.style.display = 'block'
+        ctx.clearRect(0, 0, width, height)
+      }
+    }
+  </script>
+</body>
+</html>
