@@ -32,6 +32,7 @@
       left: 0;
       z-index: 100;
       background-color: transparent;
+      cursor: crosshair;
     }
     .icon {
       position: absolute;
@@ -164,11 +165,12 @@
       }
       function draw (startX, startY, endX, endY) {
         ctx.beginPath()
-        ctx.lineWidth = '4'
+        ctx.lineWidth = '6'
         ctx.lineCap = 'round'
         ctx.lineJoin = 'round'
         ctx.moveTo(startX, startY)
         ctx.lineTo(endX, endY)
+        // quadraticCurve(ctx, {x: startX, y: startY}, {x: endX, y: startY}, -0.1)
         ctx.stroke()
       }
 
@@ -272,6 +274,23 @@
       var title = document.querySelector('.layer .title')
       title.onclick = function () {
         layer.style.display = 'none'
+      }
+      // 封装二阶贝塞尔曲线
+      function quadraticCurve (ctx, start, end, degree) {
+        const { x: startX, y: startY } = start
+        const { x: endX, y: endY } = end
+        if (!ctx || !startX || !startY || !endX || !endY || !degree) {
+          throw new Error('丢失参数')
+        }
+        // 计算中间控制点
+        var center = {
+          x: ( startX + endX ) / 2 - ( startY - endY ) * degree,
+          y: ( startY + endY ) / 2 - ( endX - startX) * degree
+        }
+        // ctx.beginPath()
+        ctx.moveTo(startX, startY)
+        ctx.quadraticCurveTo(center.x, center.y, endX, endY)
+        ctx.stroke()
       }
     }
   </script>

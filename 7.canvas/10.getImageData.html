@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>测试getImageData是否受到transform影响</title>
+</head>
+<body>
+  <canvas id="canvas-1" width="600" height="300" style="border: 1px solid #ccc;"></canvas>
+  <canvas id="canvas-2" width="600" height="300" style="border: 1px solid #ccc;"></canvas>
+  <script>
+    const canvas1 = document.querySelector('#canvas-1')
+    const canvas2 = document.querySelector('#canvas-2')
+    const ctx1 = canvas1.getContext('2d')
+    const ctx2 = canvas2.getContext('2d')
+    // 绘制一个矩形 然后获取其像素 再将其绘制到另一个区域
+    ctx1.fillStyle = 'red'
+    ctx1.fillRect(20, 20, 80, 40)
+    const imageData1 = ctx1.getImageData(20, 20, 80, 40)
+    ctx1.putImageData(imageData1, 500, 240)
+
+    ctx2.fillStyle = 'green'
+    ctx2.translate(20, 20)
+    ctx2.fillRect(0, 0, 120, 80)
+    ctx2.fillStyle = 'blue'
+    ctx2.fillRect(20, 20, 80, 40)
+    const imageData2 = ctx2.getImageData(20, 20, 80, 40)
+    ctx2.putImageData(imageData2, 500, 240)
+    // 测试发现 getImageData与putImageData方法都不会受到canvas的transform的影响。它俩针对的就是canvas画布本身实实在在的坐标。
+  </script>
+</body>
+</html>
