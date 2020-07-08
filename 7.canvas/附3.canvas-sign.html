@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>canvas-sign</title>
+  <title>canvas-sign坐标系转换</title>
   <link rel="stylesheet" href="//at.alicdn.com/t/font_1925495_d7w9tysoi4q.css">
   <style>
     html, body {
@@ -47,42 +47,15 @@
     .save {
       bottom: 50px;
     }
-    .layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(255, 255, 255);
-      display: none;
-      z-index: 1000;
-      transition: all .2 ease;
-    }
-    .layer .title {
-      position: absolute;
-      top: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 200px;
-      color: rgb(0, 0, 0);
-    }
-    .layer .img {
+    .img {
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
+      z-index: 1000;
+      display: none;
       width: 300px;
       height: 150px;
-      border: 1px solid #ccc;
-    }
-    .layer .notice {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 14px;
-      bottom: 10px;
-      width: 300px;
-      color: #DE6262;
     }
   </style>
 </head>
@@ -96,11 +69,7 @@
   <!-- 保存 -->
   <i class="iconfont icon-baocun icon save"></i>
   <!--生成的图片 -->
-  <div class="layer">
-    <div class="title">签字图片不满意？点我重签</div>
-    <img class="img" alt="生成的图片">
-    <div class="notice">签字图片已生成，请手动长按保存后，上传至MIS管理台。</div>
-  </div>
+  <img class="img" alt="生成的图片">
   <script>
     window.onload = function () {
       // 获取设置宽高 并设置给canvas
@@ -111,6 +80,9 @@
       canvas.height = height
 
       var ctx = canvas.getContext('2d')
+      // transform
+      ctx.translate(width, 0)
+      ctx.rotate(Math.PI / 2)
       // 起点 终点
       var startX, startY, endX, endY, flag
       // PC端 注意一点mousedown mousemove mouseup事件在mobile端并不会触发
@@ -143,8 +115,8 @@
         }
         flag = true
         var target = e.touches[0]
-        startX = target.pageX
-        startY = target.pageY
+        startX = target.pageY
+        startY = width - target.pageX
         e.preventDefault()
       }
       canvas.ontouchmove = function (e) {
@@ -152,11 +124,11 @@
           return
         }
         var target = e.touches[0]
-        endX = target.pageX
-        endY = target.pageY
+        endX = target.pageY
+        endY = width - target.pageX
         draw(startX, startY, endX, endY)
-        startX = target.pageX
-        startY = target.pageY
+        startX = target.pageY
+        startY = width - target.pageX
         e.preventDefault()
       }
       canvas.ontouchend = function (e) {
@@ -179,68 +151,21 @@
       }
       // 保存
       var save = document.querySelector('.save')
-      var layer = document.querySelector('.layer')
-      var img = document.querySelector('.img')
       save.onclick = function () {
+        var img = document.querySelector('.img')
         // 生成dataURL
         var dataURL = canvas.toDataURL()
-        rotateBase(dataURL).then(url => {
-          img.src = url
-          layer.style.display = 'block'
+        rotateBase64(dataURL).then(res => {
+          img.src = res
+          img.style.display = 'block'
           ctx.clearRect(0, 0, width, height)
         })
+        // img.src = dataURL
+        // img.style.display = 'block'
+        // ctx.clearRect(0, 0, width, height)
       }
-      // 1.0直接使用rotate来绘制时 会造成图片高度大于宽度 不合实际。
-      function rotate (dataURL) {
-        return new Promise((resolve, reject) => {
-          // 创建一个新的canvas
-          var c = document.createElement('canvas')
-          var context = c.getContext('2d')
-          // 图片
-          var img = new Image()
-          img.src = dataURL
-          img.onload = function () {
-            var w = img.width
-            var h = img.height
-            c.width = w
-            c.height = h
-            // 图片加载完成后 
-            context.translate(0, height)
-            context.rotate(-Math.PI / 2)
-            context.drawImage(img, 0, 0, h, w)
-            resolve(c.toDataURL())
-          }
-        })
-      }
-      // 2.0该方法是为了弥补上面的rotate方法造成图片宽度小于高度的问题
-      function rotateBase (dataURL) {
-        return new Promise((resolve, reject) => {
-          // 创建一个新的canvas
-          var c = document.createElement('canvas')
-          var context = c.getContext('2d')
-          // 图片
-          var img = new Image()
-          img.src = dataURL
-          img.onload = function () {
-            var w = img.width
-            var h = img.height
-            var bili = h / w
-            // 图片如果要横向的话 要将宽高按照重新设置
-            var rw = w / bili
-            var rh = h /bili
-            // 获取到最终的宽高后 对新建的canvas也要初始化
-            c.width = rh
-            c.height = rw
-            // canvas坐标随之而变 
-            context.translate(0, rw)
-            context.rotate(-Math.PI / 2)
-            context.drawImage(img, 0, 0, rw, rh)
-            resolve(c.toDataURL())
-          }
-        }) 
-      }
-      // TODO:绘制一个最大边长的canvas 该方法是在其他资料上看到的 一些地方没看懂
-      function rotateBase64(data){
+
+      function rotateBase64(data){   //传入需要旋转的base64图片
         return new Promise((resolve, reject) => {
           const imgView = new Image();
           imgView.src = data;
@@ -257,21 +182,18 @@
             cutCoor.sy = size - imgW;
             cutCoor.ex = size + imgH;
             cutCoor.ey = size + imgW;
+            console.log(cutCoor)
             context.translate(size, size);
             context.rotate(Math.PI/2*3);
             context.drawImage(imgView, 0, 0);
             const imgData = context.getImageData(cutCoor.sx, cutCoor.sy, cutCoor.ex, cutCoor.ey);
+            console.log(imgData)
             canvas.width = imgH;
             canvas.height = imgW;
             context.putImageData(imgData, 0, 0);
             resolve(canvas.toDataURL('image/png'));
           };
         });
-      }
-      // 重签
-      var title = document.querySelector('.layer .title')
-      title.onclick = function () {
-        layer.style.display = 'none'
       }
     }
   </script>

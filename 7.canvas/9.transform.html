@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas class="canvas1" width="100" height="200" style="border: 1px solid #ccc;"></canvas>
+  <canvas class="canvas2" width="100" height="200" style="border: 1px solid #ccc;"></canvas>
+  <script>
+    window.onload = function () {
+      var canvas = document.querySelector('.canvas1')
+      var ctx1 = canvas.getContext('2d')
+
+      var canvas = document.querySelector('.canvas2')
+      var ctx2= canvas.getContext('2d')
+      ctx2.translate(0, 200)
+      ctx2.rotate(-Math.PI / 2)
+
+      var img = new Image()
+      img.src = './cloud/image/png/avatar.png'
+      img.onload = function () {
+        ctx1.font = '24px STheiti, SimHei'
+        ctx2.font = '24px STheiti, SimHei'
+        ctx1.fillText('hello', 180, 20)
+        ctx2.fillText('hello', 180, 20)
+
+        ctx1.drawImage(img, 0, 0, 100, 200)
+        ctx2.drawImage(img, 0, 0, 200, 100)
+      }
+
+      // ctx.translate(300, 0)
+      // ctx.rotate(Math.PI / 2)
+      // ctx.fillRect(0, 0, 100, 200)
+
+      // ctx.fillRect(0, 0, 200, 100)
+    }
+  </script>
+</body>
+</html>

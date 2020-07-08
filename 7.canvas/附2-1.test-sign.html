@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="canvas1" width="300" height="600" style="border: 1px solid #ccc;"></canvas>
+  <canvas id="canvas2" width="300" height="600" style="border: 1px solid #ccc;"></canvas>
+  <script>
+    var canvas1 = document.querySelector('#canvas1')
+    var canvas2 = document.querySelector('#canvas2')
+    var ctx1 = canvas1.getContext('2d')
+    var ctx2 = canvas2.getContext('2d')
+
+    var width = canvas1.width
+    var height = canvas1.height
+    var bili = height / width
+    var img = new Image()
+    img.src = './cloud/image/png/avatar.png'
+    img.onload = function () {
+      ctx1.drawImage(img, 0, 0, 300, 600)
+      
+      var rw = width / bili
+      var rh = height / bili
+      canvas2.width = rh
+      canvas2.height = rw
+      ctx2.translate(0, rw)
+      ctx2.rotate(-Math.PI / 2)
+      ctx2.drawImage(img, 0, 0, rw, rh)
+    }
+  </script>
+</body>
+</html>
