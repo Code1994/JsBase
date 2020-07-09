@@ -6,48 +6,152 @@
   <title>clock</title>
 </head>
 <body>
-  <canvas id="canvas" width="800" height="800" style="border: 1px solid #ccc;"></canvas>
+  <canvas id="clock" width="600" height="600" style="border: 1px solid #ccc;"></canvas>
 </body>
 <script>
-  const canvas = document.querySelector('#canvas')
-  const ctx = canvas.getContext('2d')
-  ctx.arc(400, 400, 200, 0, Math.PI * 2)
-  // 这里为了防止arc与moveTo的坐标连接 所以将绘制起点移动到内圆的右坐标处（因为我们是从0角度开始画的）
-  ctx.moveTo(580, 400)
-  ctx.arc(400, 400, 180, 0, Math.PI * 2)
-  ctx.stroke()
-  /* 方法一 */ 
-  // 秒针
-  // ctx.moveTo(400, 400)
-  // ctx.lineTo(400, 240)
-  // ctx.stroke()
-  // 分针
-  // ctx.moveTo(400, 400)
-  // ctx.lineTo(300, 400)
-  // moveTo会对closePath产生影响 而不会对stroke方法影响 所以实际上只需在这里调用一次stroke即可
-  // ctx.stroke()
-
-  /* 方法二 将绘制点利用转换绘制 因为变换的影响是全局的 */ 
-  // translate方法必须先放在移动坐标的代码之前 因为它是参考点 canvas中本身没有负坐标 (包括rotate，总结一句话， 变化需要放在坐标变更之前 而且可以叠加)
-  ctx.translate(400, 400)
-  ctx.moveTo(0, 0)
-  ctx.lineTo(0, -160)
-  ctx.moveTo(0, 0)
-  ctx.lineTo(-120, 0)
-  ctx.stroke()
-  ctx.clearRect(-400, -400, 800, 800)
-  // 秒针旋转 
-  const angle = Math.PI * 2 / 60
-  let i = 1
-  // setInterval(() => {
-  //   ctx.clearRect(-400, -400, 800, 800)
-  //   ctx.rotate(angle)
-  //   ctx.moveTo(0, 0)
-  //   ctx.lineTo(0, -160)
-  //   ctx.stroke()
-  //   ctx.restore()
-  //   i++
-  //   console.log(angle, i)
-  // }, 1000)
+  function Clock (id, x, y, r) {
+    var canvas = document.querySelector(id)
+    this.width = canvas.width
+    this.height = canvas.height
+    // 上下文
+    this.ctx = canvas.getContext('2d')
+    // 定义圆心
+    this.x = x
+    this.y = y
+    // 半径
+    this.r = r
+  }
+  // 基本样式
+  Clock.prototype.draw = function () {
+    var { ctx, x, y, r } = this
+    ctx.clearRect(0, 0, this.width, this.height)
+    // 1.圆
+    ctx.beginPath()
+    ctx.lineWidth = '4'
+    ctx.arc(x, y, r, 0, Math.PI * 2,)
+    ctx.stroke()
+    // 2.表盘 角度在(0，2π)之间，而且 2π / 12 = π/6
+    var angle = Math.PI * 2
+    var num = 0
+    for (let i = 0; i <= angle; i += angle / 12) {
+      // 计算出圆上的坐标。
+      var { startX, startY } = this.getCoord(x, y, r, i)
+      // 设置终点
+      var length = 8
+      // Math.cos(Math.PI / 2)竟然不等于0。。。。。
+      var endX = startX - length * Math.cos(i)
+      var endY = startY + length * Math.sin(i)
+      // 绘制
+      ctx.beginPath()
+      ctx.lineWidth = '4'
+      ctx.moveTo(startX, startY)
+      ctx.lineTo(endX, endY)
+      ctx.stroke()
+      // 绘制数字
+      var list = [3, 2, 1, 12, 11, 10, 9, 8, 7, 6, 5, 4]
+      ctx.font = 'bold 20px STheiti, SimHei'
+      if (i === Math.PI / 2 || i === Math.PI / 2 * 3) {
+        ctx.textAlign = 'center'
+      } else if (i > Math.PI / 2 && i < Math.PI / 2 * 3) {
+        ctx.textAlign = 'left'
+      } else {
+        ctx.textAlign = 'right'
+      }
+      
+      if (i > Math.PI) {
+        ctx.textBaseline = 'bottom'
+      } else if (num === 6 || i === 0) {
+        ctx.textBaseline = 'middle'
+      } else {
+        ctx.textBaseline = 'top'
+      }
+      ctx.fillText(list[num], endX, endY)
+      num++
+    }
+    this.setSecond()
+    this.setMinute()
+    this.setHour()
+    // 圆心
+    ctx.beginPath()
+    ctx.lineWidth = '4'
+    ctx.arc(x, y, 2, 0, Math.PI * 2,)
+    ctx.stroke()
+  }
+  // 秒针 60s 2π 1s的话就是Math.PI / 30
+  Clock.prototype.setSecond = function () {
+    var { ctx, x, y, r } = this
+    var seconds = new Date().getSeconds()
+    var angle = Math.PI / 2 - Math.PI * 2 / 60 * seconds
+    // 1:4
+    var { startX, startY } = this.getCoord(x, y, r / 5, angle, -1)
+    var { startX: endX, startY: endY } = this.getCoord(x, y, r * 4 / 5, angle)
+    ctx.save()
+    // 为什么加save? beginPath不能控制strokeStyle??? 其实能控制，但是如果其他线条没有设置strokeStyle就会受影响，所以一般加上save和restore。
+    ctx.beginPath()
+    ctx.lineWidth = '1'
+    ctx.moveTo(startX, startY)
+    ctx.lineTo(endX, endY)
+    ctx.strokeStyle = 'red'
+    ctx.stroke()
+    ctx.restore()
+  }
+  // 分针 60m 2π 1m的话也是Math.PI / 30
+  Clock.prototype.setMinute = function () {
+    var { ctx, x, y, r } = this
+    var minutes = new Date().getMinutes()
+    var angle = Math.PI / 2 - Math.PI * 2 / 60 * minutes
+    // 分针整长为3/4r
+    var l = 3 / 4 * r
+    var { startX, startY } = this.getCoord(x, y, l / 5, angle, -1)
+    var { startX: endX, startY: endY } = this.getCoord(x, y, l * 4 / 5, angle)
+    ctx.save()
+    ctx.beginPath()
+    ctx.lineWidth = '2'
+    ctx.moveTo(startX, startY)
+    ctx.lineTo(endX, endY)
+    ctx.stroke()
+    ctx.restore()
+  }
+  // 时针 12h 2π 1h的话就是Math.PI / 6
+  Clock.prototype.setHour = function () {
+    var { ctx, x, y, r } = this
+    var hours = new Date().getHours()
+    var angle = Math.PI / 2 - Math.PI * 2 / 12 * hours
+    // 分针整长为1/2r
+    var l = 1 / 2 * r
+    var { startX, startY } = this.getCoord(x, y, l / 5, angle, -1)
+    var { startX: endX, startY: endY } = this.getCoord(x, y, l * 4 / 5, angle)
+    ctx.save()
+    ctx.beginPath()
+    ctx.lineWidth = '4'
+    ctx.moveTo(startX, startY)
+    ctx.lineTo(endX, endY)
+    ctx.stroke()
+    ctx.restore()
+  }
+  // 封装一个方法 根据坐标(x, y) 长度r 以及角度angle，可以求出另一个对应坐标。这里的sign代表哪个方向去寻找目的坐标点，默认是正向
+  Clock.prototype.getCoord = function (x, y, r, angle, sign = 1) {
+    if (isUndefined(x) || isUndefined(y) || isUndefined(r) || isUndefined(angle)) {
+      throw new Error('丢失参数')
+    }
+    // 获取到角度后 根据三角函数计算出两边长
+    var rx = r * Math.cos(angle)
+    var ry = r * Math.sin(angle)
+    // 根据边长和圆心坐标 计算出坐标。注意canvas坐标与数学坐标的y轴是反的。
+    var startX = x + rx * Math.sign(sign)
+    var startY = y - ry * Math.sign(sign)
+    return {
+      startX,
+      startY
+    }
+  }
+  function isUndefined (value) {
+    return typeof value === 'undefined'
+  }
+  // 实例化
+  var clock = new Clock('#clock', 300, 300, 200)
+  setInterval(() => {
+    clock.draw()
+  }, 1000)
 </script>
 </html>

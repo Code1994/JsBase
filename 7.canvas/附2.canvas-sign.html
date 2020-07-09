@@ -100,7 +100,7 @@
   <div class="layer">
     <div class="title">签字图片不满意？点我重签</div>
     <img class="img" alt="生成的图片">
-    <div class="notice">签字图片已生成，请手动长按保存后，上传至MIS管理台。</div>
+    <div class="notice">签字图片已生成，可以手动长按保存。</div>
   </div>
   <script>
     window.onload = function () {
@@ -170,7 +170,6 @@
         ctx.lineJoin = 'round'
         ctx.moveTo(startX, startY)
         ctx.lineTo(endX, endY)
-        // quadraticCurve(ctx, {x: startX, y: startY}, {x: endX, y: startY}, -0.1)
         ctx.stroke()
       }
 
@@ -192,6 +191,7 @@
           ctx.clearRect(0, 0, width, height)
         })
       }
+      
       // 1.0直接使用rotate来绘制时 会造成图片高度大于宽度 不合实际。
       function rotate (dataURL) {
         return new Promise((resolve, reject) => {
@@ -241,7 +241,7 @@
           }
         }) 
       }
-      // TODO:绘制一个最大边长的canvas 该方法是在其他资料上看到的 一些地方没看懂
+      // 3.0该方法是在其他资料上看到的 主要利用了getImageData
       function rotateBase64(data){
         return new Promise((resolve, reject) => {
           const imgView = new Image();
@@ -274,23 +274,6 @@
       var title = document.querySelector('.layer .title')
       title.onclick = function () {
         layer.style.display = 'none'
-      }
-      // 封装二阶贝塞尔曲线
-      function quadraticCurve (ctx, start, end, degree) {
-        const { x: startX, y: startY } = start
-        const { x: endX, y: endY } = end
-        if (!ctx || !startX || !startY || !endX || !endY || !degree) {
-          throw new Error('丢失参数')
-        }
-        // 计算中间控制点
-        var center = {
-          x: ( startX + endX ) / 2 - ( startY - endY ) * degree,
-          y: ( startY + endY ) / 2 - ( endX - startX) * degree
-        }
-        // ctx.beginPath()
-        ctx.moveTo(startX, startY)
-        ctx.quadraticCurveTo(center.x, center.y, endX, endY)
-        ctx.stroke()
       }
     }
   </script>
