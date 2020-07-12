@@ -77,7 +77,7 @@
     ctx.arc(x, y, 2, 0, Math.PI * 2,)
     ctx.stroke()
   }
-  // 秒针 60s 2π 1s的话就是Math.PI / 30
+  // 秒针 60s 2π 1s的话就是Math.PI / 30     秒针、分针和时针的绘制代码是可以简化封装的，但为了好理解，保持这样吧
   Clock.prototype.setSecond = function () {
     var { ctx, x, y, r } = this
     var seconds = new Date().getSeconds()
